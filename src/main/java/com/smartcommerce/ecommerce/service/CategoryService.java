@@ -1,15 +1,15 @@
 package com.smartcommerce.ecommerce.service;
 
-import com.smartcommerce.ecommerce.model.Category;
+import com.smartcommerce.ecommerce.payload.CategoryDTO;
+import com.smartcommerce.ecommerce.payload.CategoryResponse;
 
-import java.util.List;
 
 public interface CategoryService {
-    List<Category> getAllCategories();
+    CategoryResponse getAllCategories(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
 
-    void createCategory(Category category);
+    CategoryDTO createCategory(CategoryDTO categoryDTO);
 
-    String deleteCategory(Long categoryId);
+    CategoryDTO deleteCategory(Long categoryId);
 
-    Category updateCategory(Long categoryId, Category category);
+    CategoryDTO updateCategory(Long categoryId, CategoryDTO categoryDTO);
 }
