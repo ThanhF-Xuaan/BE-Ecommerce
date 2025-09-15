@@ -35,7 +35,7 @@ public class ProductServiceImpl implements ProductService {
         this.categoryRepository = categoryRepository;
         this.productRepository = productRepository;
         this.fileService = fileService;
-        this.modelMapper = new ModelMapper();
+        this.modelMapper = modelMapper;
     }
 
     @Override
@@ -148,5 +148,21 @@ public class ProductServiceImpl implements ProductService {
                 productPage.getTotalElements(),
                 productPage.getTotalPages(),
                 productPage.isLast());
+    }
+
+    @Override
+    public ProductDTO updateProduct(Long productId, ProductDTO productDTO) {
+        Product productFromDB =  productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product", "productId", productId));
+
+        Product product = modelMapper.map(productDTO, Product.class);
+        productFromDB.setProductName(product.getProductName());
+        productFromDB.setDescription(product.getDescription());
+        productFromDB.setQuantity(product.getQuantity());
+        productFromDB.setDiscount(product.getDiscount());
+        productFromDB.setPrice(product.getPrice());
+        productFromDB.setSpecialPrice(product.getSpecialPrice());
+
+        return modelMapper.map(productRepository.save(productFromDB), ProductDTO.class);
     }
 }
