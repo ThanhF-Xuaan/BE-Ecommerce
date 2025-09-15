@@ -87,7 +87,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductResponse getAllProductsByCategory(Long categoryId, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+    public ProductResponse getAllProductsByCategory(Long categoryId,
+                                                    Integer pageNumber,
+                                                    Integer pageSize,
+                                                    String sortBy,
+                                                    String sortOrder) {
         categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
 
@@ -100,7 +104,38 @@ public class ProductServiceImpl implements ProductService {
 
         List<Product> products = productPage.getContent();
         if(products.isEmpty()) {
-            throw new APIException("No products exist with category: " + categoryId);
+            throw new APIException("Products not found with category: " + categoryId);
+        }
+
+        List<ProductDTO> productDTOS = products.stream()
+                .map(product -> modelMapper.map(product, ProductDTO.class))
+                .toList();
+
+        return new ProductResponse(productDTOS,
+                productPage.getNumber(),
+                productPage.getSize(),
+                productPage.getTotalElements(),
+                productPage.getTotalPages(),
+                productPage.isLast());
+    }
+
+    @Override
+    public ProductResponse getAllProductsByKeyword(String keyword,
+                                                   Integer pageNumber,
+                                                   Integer pageSize,
+                                                   String sortBy,
+                                                   String sortOrder) {
+        Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageDetails = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
+        Page<Product> productPage = productRepository
+                .findByProductNameLikeIgnoreCase("%" + keyword + "%", pageDetails);
+
+        List<Product> products = productPage.getContent();
+        if(products.isEmpty()) {
+            throw new APIException("Products not found with keyword: " + keyword);
         }
 
         List<ProductDTO> productDTOS = products.stream()

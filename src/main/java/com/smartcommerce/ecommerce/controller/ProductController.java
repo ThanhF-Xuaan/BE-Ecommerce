@@ -25,7 +25,7 @@ public class ProductController {
                 HttpStatus.CREATED);
     }
 
-    @GetMapping("public/products")
+    @GetMapping("/public/products")
     public ResponseEntity<ProductResponse> getAllProducts(
             @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER) Integer pageNumber,
             @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE)  Integer pageSize,
@@ -36,7 +36,7 @@ public class ProductController {
         return new ResponseEntity<>(productResponse, HttpStatus.OK);
     }
 
-    @GetMapping("public/categories/{categoryId}/products")
+    @GetMapping("/public/categories/{categoryId}/products")
     public ResponseEntity<ProductResponse> getAllProductsByCategory(
             @PathVariable Long categoryId,
             @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER) Integer pageNumber,
@@ -45,6 +45,19 @@ public class ProductController {
             @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIR) String sortOrder
     ){
         ProductResponse productResponse = productService.getAllProductsByCategory(categoryId,
+                pageNumber, pageSize, sortBy, sortOrder);
+        return new ResponseEntity<>(productResponse, HttpStatus.OK);
+    }
+
+    @GetMapping("/public/products/keyword/{keyword}")
+    public ResponseEntity<ProductResponse> getAllProductsByKeyword(
+            @PathVariable String keyword,
+            @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER) Integer pageNumber,
+            @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE)  Integer pageSize,
+            @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_PRODUCTS_BY) String sortBy,
+            @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIR) String sortOrder
+    ){
+        ProductResponse productResponse = productService.getAllProductsByKeyword(keyword,
                 pageNumber, pageSize, sortBy, sortOrder);
         return new ResponseEntity<>(productResponse, HttpStatus.OK);
     }
