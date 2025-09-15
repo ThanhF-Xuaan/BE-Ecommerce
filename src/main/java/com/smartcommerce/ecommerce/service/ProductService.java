@@ -8,4 +8,6 @@ public interface ProductService {
     ProductDTO createProduct(Long categoryId, @Valid ProductDTO productDTO);
 
     ProductResponse getAllProducts(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
+
+    ProductResponse getAllProductsByCategory(Long categoryId, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
 }
