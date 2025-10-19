@@ -2,10 +2,13 @@ package com.smartcommerce.ecommerce.service;
 
 import com.smartcommerce.ecommerce.exceptions.APIException;
 import com.smartcommerce.ecommerce.exceptions.ResourceNotFoundException;
+import com.smartcommerce.ecommerce.model.Cart;
 import com.smartcommerce.ecommerce.model.Category;
 import com.smartcommerce.ecommerce.model.Product;
+import com.smartcommerce.ecommerce.payload.CartDTO;
 import com.smartcommerce.ecommerce.payload.ProductDTO;
 import com.smartcommerce.ecommerce.payload.ProductResponse;
+import com.smartcommerce.ecommerce.repositories.CartRepository;
 import com.smartcommerce.ecommerce.repositories.CategoryRepository;
 import com.smartcommerce.ecommerce.repositories.ProductRepository;
 import org.modelmapper.ModelMapper;
@@ -24,6 +27,8 @@ import java.util.List;
 public class ProductServiceImpl implements ProductService {
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
+    private final CartRepository cartRepository;
+    private final CartService cartService;
     private final FileService fileService;
     private final ModelMapper modelMapper;
 
@@ -32,10 +37,14 @@ public class ProductServiceImpl implements ProductService {
 
     public ProductServiceImpl(CategoryRepository categoryRepository,
                               ProductRepository productRepository,
+                              CartRepository cartRepository,
+                              CartService cartService,
                               FileService fileService,
                               ModelMapper modelMapper) {
         this.categoryRepository = categoryRepository;
         this.productRepository = productRepository;
+        this.cartRepository = cartRepository;
+        this.cartService = cartService;
         this.fileService = fileService;
         this.modelMapper = modelMapper;
     }
@@ -164,6 +173,22 @@ public class ProductServiceImpl implements ProductService {
         productFromDB.setDiscount(product.getDiscount());
         productFromDB.setPrice(product.getPrice());
         productFromDB.setSpecialPrice(product.getSpecialPrice());
+
+        List<Cart> carts = cartRepository.findCartsByProductId(productId);
+
+        List<CartDTO> cartDTOs = carts.stream().map(cart -> {
+            CartDTO cartDTO = modelMapper.map(cart, CartDTO.class);
+
+            List<ProductDTO> products = cart.getCartItems().stream()
+                    .map(p -> modelMapper.map(p.getProduct(), ProductDTO.class)).toList();
+
+            cartDTO.setProducts(products);
+
+            return cartDTO;
+
+        }).toList();
+
+        cartDTOs.forEach(cart -> cartService.updateProductInCarts(cart.getCartId(), productId));
 
         return modelMapper.map(productRepository.save(productFromDB), ProductDTO.class);
     }
