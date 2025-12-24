@@ -4,12 +4,13 @@ import com.smartcommerce.ecommerce.config.AppConstants;
 import com.smartcommerce.ecommerce.payload.CategoryDTO;
 import com.smartcommerce.ecommerce.payload.CategoryResponse;
 import com.smartcommerce.ecommerce.service.CategoryService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
+@Tag(name = "Category", description = "Quản lý danh mục sản phẩm (Điện tử, Thời trang, v.v.)")
 @RestController
 @RequestMapping("/api")
 public class CategoryController {

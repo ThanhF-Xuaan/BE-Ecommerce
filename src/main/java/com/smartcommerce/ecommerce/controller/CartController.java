@@ -5,12 +5,14 @@ import com.smartcommerce.ecommerce.payload.CartDTO;
 import com.smartcommerce.ecommerce.repositories.CartRepository;
 import com.smartcommerce.ecommerce.service.CartService;
 import com.smartcommerce.ecommerce.util.AuthUtil;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "Cart", description = "Quản lý giỏ hàng của người dùng")
 @RestController
 @RequestMapping("/api")
 public class CartController {

@@ -4,6 +4,7 @@ import com.smartcommerce.ecommerce.config.AppConstants;
 import com.smartcommerce.ecommerce.payload.ProductDTO;
 import com.smartcommerce.ecommerce.payload.ProductResponse;
 import com.smartcommerce.ecommerce.service.ProductService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
+@Tag(name = "Product", description = "Quản lý sản phẩm, tìm kiếm và xử lý hình ảnh")
 @RestController
 @RequestMapping("/api")
 public class ProductController {

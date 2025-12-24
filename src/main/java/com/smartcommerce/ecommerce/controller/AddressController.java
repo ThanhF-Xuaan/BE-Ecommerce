@@ -11,9 +11,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+
 @RestController
 @RequestMapping("/api")
-public class AddressController {
+public class AddressController implements AddressApi{
     private final AuthUtil authUtil;
     private final AddressService addressService;
 

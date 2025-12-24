@@ -4,10 +4,12 @@ import com.smartcommerce.ecommerce.payload.OrderDTO;
 import com.smartcommerce.ecommerce.payload.OrderRequestDTO;
 import com.smartcommerce.ecommerce.service.OrderService;
 import com.smartcommerce.ecommerce.util.AuthUtil;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "Order", description = "Quản lý quy trình đặt hàng")
 @RestController
 @RequestMapping("/api")
 public class OrderController {

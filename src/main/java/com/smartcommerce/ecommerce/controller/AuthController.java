@@ -11,6 +11,7 @@ import com.smartcommerce.ecommerce.security.request.SignupRequest;
 import com.smartcommerce.ecommerce.security.response.MessageResponse;
 import com.smartcommerce.ecommerce.security.response.UserInfoResponse;
 import com.smartcommerce.ecommerce.security.services.UserDetailsImpl;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
+@Tag(name = "Authentication", description = "Quản lý Đăng nhập, Đăng ký và Đăng xuất")
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
