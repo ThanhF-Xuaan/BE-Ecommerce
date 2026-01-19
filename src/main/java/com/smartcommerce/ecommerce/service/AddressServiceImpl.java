@@ -9,6 +9,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AddressServiceImpl implements AddressService{
@@ -22,11 +23,22 @@ public class AddressServiceImpl implements AddressService{
 
     @Override
     public AddressDTO createAddress(AddressDTO addressDTO, User user) {
+        Optional<Address> existingAddress =
+                addressRepository.findAddressByCityAndWardAndStreetDetailAndBuildingNameAndPincode
+                (addressDTO.getCity(), addressDTO.getWard(), addressDTO.getStreetDetail(),
+                        addressDTO.getBuildingName(), addressDTO.getPincode());
+
+        if(existingAddress.isPresent()){
+            existingAddress.get().setUser(user);
+            return modelMapper.map(existingAddress.get(), AddressDTO.class);
+        }
+
         Address address = modelMapper.map(addressDTO, Address.class);
         address.setUser(user);
         List<Address> addressesList = user.getAddresses();
         addressesList.add(address);
         user.setAddresses(addressesList);
+
         Address savedAddress = addressRepository.save(address);
         return modelMapper.map(savedAddress, AddressDTO.class);
     }
@@ -60,11 +72,10 @@ public class AddressServiceImpl implements AddressService{
                 .orElseThrow(() -> new ResourceNotFoundException("Address", "addressId", addressId));
 
         addressFromDatabase.setCity(addressDTO.getCity());
-        addressFromDatabase.setPincode(addressDTO.getPincode());
-        addressFromDatabase.setState(addressDTO.getState());
-        addressFromDatabase.setCountry(addressDTO.getCountry());
-        addressFromDatabase.setStreet(addressDTO.getStreet());
+        addressFromDatabase.setWard(addressDTO.getWard());
+        addressFromDatabase.setStreetDetail(addressDTO.getStreetDetail());
         addressFromDatabase.setBuildingName(addressDTO.getBuildingName());
+        addressFromDatabase.setPincode(addressDTO.getPincode());
 
         Address updatedAddress = addressRepository.save(addressFromDatabase);
 
@@ -73,6 +84,16 @@ public class AddressServiceImpl implements AddressService{
 
     @Override
     public String deleteAddress(Long addressId) {
+        Address addressFromDatabase = addressRepository.findById(addressId)
+                .orElseThrow(() -> new ResourceNotFoundException("Address", "addressId", addressId));
+
+        addressRepository.delete(addressFromDatabase);
+
+        return "Address deleted successfully with addressId: " + addressId;
+    }
+
+    @Override
+    public String deleteAddressByUser(Long addressId, User user) {
         Address addressFromDatabase = addressRepository.findById(addressId)
                 .orElseThrow(() -> new ResourceNotFoundException("Address", "addressId", addressId));
 

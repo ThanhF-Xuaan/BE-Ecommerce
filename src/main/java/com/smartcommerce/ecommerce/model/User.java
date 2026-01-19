@@ -5,11 +5,9 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import org.hibernate.annotations.UuidGenerator;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @NoArgsConstructor
@@ -23,23 +21,17 @@ import java.util.Set;
         })
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
-    private Long userId;
+    @GeneratedValue
+    @UuidGenerator(style = UuidGenerator.Style.TIME)
+    @Column(name = "user_id", updatable = false, nullable = false)
+    private UUID userId;
 
-    @NotBlank
-    @Size(max = 20)
     @Column(name = "username")
     private String userName;
 
-    @NotBlank
-    @Size(max = 50)
-    @Email
     @Column(name = "email")
     private String email;
 
-    @NotBlank
-    @Size(max = 120)
     @Column(name = "password")
     private String password;
 

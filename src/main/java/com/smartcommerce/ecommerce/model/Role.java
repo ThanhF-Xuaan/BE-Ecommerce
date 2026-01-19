@@ -2,6 +2,9 @@ package com.smartcommerce.ecommerce.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.UuidGenerator;
+
+import java.util.UUID;
 
 @Entity
 @NoArgsConstructor
@@ -12,7 +15,6 @@ import lombok.*;
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "role_id")
     private Integer roleId;
 
     @ToString.Exclude

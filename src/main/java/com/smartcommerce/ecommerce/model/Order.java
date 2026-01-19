@@ -6,10 +6,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "orders")
@@ -19,10 +21,11 @@ import java.util.List;
 @AllArgsConstructor
 public class Order {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long orderId;
+    @GeneratedValue
+    @UuidGenerator(style = UuidGenerator.Style.TIME)
+    @Column(name = "order_id", updatable = false, nullable = false)
+    private UUID orderId;
 
-    @Email
     @Column(nullable = false)
     private String email;
 

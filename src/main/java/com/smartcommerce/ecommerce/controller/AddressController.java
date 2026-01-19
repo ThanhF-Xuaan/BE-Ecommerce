@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-
 @RestController
 @RequestMapping("/api")
 public class AddressController implements AddressApi{
@@ -51,7 +50,7 @@ public class AddressController implements AddressApi{
 
     @PutMapping("/addresses/{addressId}")
     public ResponseEntity<AddressDTO> updateAddress(@PathVariable Long addressId
-            , @RequestBody AddressDTO addressDTO){
+            , @Valid @RequestBody AddressDTO addressDTO){
         AddressDTO updatedAddress = addressService.updateAddress(addressId, addressDTO);
         return new ResponseEntity<>(updatedAddress, HttpStatus.OK);
     }
@@ -59,6 +58,13 @@ public class AddressController implements AddressApi{
     @DeleteMapping("/addresses/{addressId}")
     public ResponseEntity<String> deleteAddress(@PathVariable Long addressId){
         String status = addressService.deleteAddress(addressId);
+        return new ResponseEntity<>(status, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/users/addresses/{addressId}")
+    public ResponseEntity<String> deleteAddressByUser(@PathVariable Long addressId){
+        User user = authUtil.loggedInUser();
+        String status = addressService.deleteAddressByUser(addressId, user);
         return new ResponseEntity<>(status, HttpStatus.OK);
     }
 }

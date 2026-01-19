@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import org.hibernate.annotations.UuidGenerator;
+
+import java.util.UUID;
 
 @Entity
 @Table(name = "payments")
@@ -13,14 +16,14 @@ import lombok.*;
 @AllArgsConstructor
 public class Payment {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long paymentId;
+    @GeneratedValue
+    @UuidGenerator(style = UuidGenerator.Style.TIME)
+    @Column(name = "payment_id", updatable = false, nullable = false)
+    private UUID paymentId;
 
     @OneToOne(mappedBy = "payment", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     private Order order;
 
-    @NotBlank
-    @Size(min = 4, message = "Payment method must contain at least 4 characters")
     private String paymentMethod;
 
     private String pgPaymentId;

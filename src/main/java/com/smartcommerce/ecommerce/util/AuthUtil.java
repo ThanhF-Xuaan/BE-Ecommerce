@@ -23,12 +23,12 @@ public class AuthUtil {
         return user.getEmail();
     }
 
-    public Long loggedInUserId(){
+    public String loggedInUserId(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = userRepository.findByUserName(authentication.getName())
                 .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + authentication.getName()));
 
-        return user.getUserId();
+        return user.getUserId().toString();
     }
 
     public User loggedInUser(){

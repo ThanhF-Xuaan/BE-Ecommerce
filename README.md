@@ -29,4 +29,4 @@ src/main/java/com/smartcommerce/ecommerce/
 ├── repositories/   # Tầng truy xuất dữ liệu (Spring Data JPA) 
 ├── security/       # Cấu hình JWT, Security Filters & Authorization 
 ├── service/        # Tầng xử lý Logic nghiệp vụ & Transactions 
-└── util/           # Các lớp tiện ích bổ trợ 
+└── util/           # Các lớp tiện ích bổ trợ
