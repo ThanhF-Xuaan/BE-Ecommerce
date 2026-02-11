@@ -1,16 +1,21 @@
 package com.smartcommerce.ecommerce.security.response;
 
-import lombok.Data;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.util.List;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserInfoResponse {
-    private String id;
-    private String jwtToken;
+    String id;
+    String jwtToken;
 
-    private String username;
-    private List<String> roles;
+    String username;
+    List<String> roles;
 
     public UserInfoResponse(String id, String username, List<String> roles) {
         this.id = id;

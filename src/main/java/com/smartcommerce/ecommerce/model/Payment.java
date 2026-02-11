@@ -1,9 +1,8 @@
 package com.smartcommerce.ecommerce.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.util.UUID;
@@ -14,23 +13,25 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Payment {
     @Id
     @GeneratedValue
     @UuidGenerator(style = UuidGenerator.Style.TIME)
     @Column(name = "payment_id", updatable = false, nullable = false)
-    private UUID paymentId;
+    UUID paymentId;
 
     @OneToOne(mappedBy = "payment", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
-    private Order order;
+    Order order;
 
-    private String paymentMethod;
+    String paymentMethod;
 
-    private String pgPaymentId;
-    private String pgStatus;
-    private String pgResponseMessage;
+    String pgPaymentId;
+    String pgStatus;
+    String pgResponseMessage;
 
-    private String pgName;
+    String pgName;
 
     public Payment(String paymentMethod, String pgPaymentId, String pgStatus,
                    String pgResponseMessage, String pgName) {

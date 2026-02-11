@@ -6,6 +6,9 @@ import com.smartcommerce.ecommerce.repositories.CartRepository;
 import com.smartcommerce.ecommerce.service.CartService;
 import com.smartcommerce.ecommerce.util.AuthUtil;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,16 +18,13 @@ import java.util.List;
 @Tag(name = "Cart", description = "Quản lý giỏ hàng của người dùng")
 @RestController
 @RequestMapping("/api")
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@RequiredArgsConstructor
 public class CartController {
-    private final CartService cartService;
-    private final CartRepository cartRepository;
-    private final AuthUtil authUtil;
+    CartService cartService;
+    CartRepository cartRepository;
+    AuthUtil authUtil;
 
-    public CartController(CartService cartService,  CartRepository cartRepository, AuthUtil authUtil) {
-        this.cartService = cartService;
-        this.cartRepository = cartRepository;
-        this.authUtil = authUtil;
-    }
 
     @PostMapping("/carts/products/{productId}/quantity/{quantity}")
     public ResponseEntity<CartDTO> addProductToCart(@PathVariable Long productId,

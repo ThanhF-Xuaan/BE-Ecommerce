@@ -1,9 +1,8 @@
 package com.smartcommerce.ecommerce.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,28 +12,30 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @Setter
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "products")
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long productId;
+    Long productId;
 
-    private String productName;
-    private String image;
-    private String description;
-    private Integer quantity;
-    private Double price;
-    private Double discount;
-    private Double specialPrice;
+    String productName;
+    String image;
+    String description;
+    Integer quantity;
+    Double price;
+    Double discount;
+    Double specialPrice;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
-    private Category category;
+    Category category;
 
     @ManyToOne
     @JoinColumn(name = "seller_id")
-    private User user;
+    User seller;
 
     @OneToMany(mappedBy = "product", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
-    private List<CartItem> products = new ArrayList<>();
+    List<CartItem> cartItems = new ArrayList<>();
 }

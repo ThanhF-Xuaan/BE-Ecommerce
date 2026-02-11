@@ -1,8 +1,7 @@
 package com.smartcommerce.ecommerce.payload;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,8 +9,10 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class CartDTO {
-    private Long cartId;
-    private Double totalPrice = 0.0;
-    private List<ProductDTO> products = new ArrayList<>();
+    Long cartId;
+    Double totalPrice = 0.0;
+    List<ProductDTO> products = new ArrayList<>();
 }

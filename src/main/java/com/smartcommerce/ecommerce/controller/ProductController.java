@@ -6,6 +6,9 @@ import com.smartcommerce.ecommerce.payload.ProductResponse;
 import com.smartcommerce.ecommerce.service.ProductService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,12 +19,10 @@ import java.io.IOException;
 @Tag(name = "Product", description = "Quản lý sản phẩm, tìm kiếm và xử lý hình ảnh")
 @RestController
 @RequestMapping("/api")
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@RequiredArgsConstructor
 public class ProductController {
-    private final ProductService productService;
-
-    public ProductController(ProductService productService) {
-        this.productService = productService;
-    }
+    ProductService productService;
 
     @PostMapping("/admin/categories/{categoryId}/product")
     public ResponseEntity<ProductDTO> createProduct(@PathVariable Long categoryId,

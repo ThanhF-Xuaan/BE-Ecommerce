@@ -1,12 +1,13 @@
 package com.smartcommerce.ecommerce.security.response;
 
-import lombok.Data;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class MessageResponse {
-    private String message;
-
-    public MessageResponse(String message) {
-        this.message = message;
-    }
+    String message;
 }

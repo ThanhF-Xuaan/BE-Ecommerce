@@ -1,104 +1,88 @@
 package com.smartcommerce.ecommerce.service;
 
+import com.smartcommerce.ecommerce.exceptions.APIException;
 import com.smartcommerce.ecommerce.exceptions.ResourceNotFoundException;
+import com.smartcommerce.ecommerce.mapper.AddressMapper;
 import com.smartcommerce.ecommerce.model.Address;
 import com.smartcommerce.ecommerce.model.User;
 import com.smartcommerce.ecommerce.payload.AddressDTO;
 import com.smartcommerce.ecommerce.repositories.AddressRepository;
-import org.modelmapper.ModelMapper;
+import jakarta.transaction.Transactional;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@RequiredArgsConstructor
 public class AddressServiceImpl implements AddressService{
-    private final AddressRepository addressRepository;
-    private final ModelMapper modelMapper;
-
-    public AddressServiceImpl(AddressRepository addressRepository, ModelMapper modelMapper) {
-        this.addressRepository = addressRepository;
-        this.modelMapper = modelMapper;
-    }
+    AddressRepository addressRepository;
+    AddressMapper addressMapper;
 
     @Override
+    @Transactional
     public AddressDTO createAddress(AddressDTO addressDTO, User user) {
-        Optional<Address> existingAddress =
-                addressRepository.findAddressByCityAndWardAndStreetDetailAndBuildingNameAndPincode
-                (addressDTO.getCity(), addressDTO.getWard(), addressDTO.getStreetDetail(),
-                        addressDTO.getBuildingName(), addressDTO.getPincode());
-
-        if(existingAddress.isPresent()){
-            existingAddress.get().setUser(user);
-            return modelMapper.map(existingAddress.get(), AddressDTO.class);
-        }
-
-        Address address = modelMapper.map(addressDTO, Address.class);
+        Address address = addressMapper.toEntity(addressDTO);
         address.setUser(user);
-        List<Address> addressesList = user.getAddresses();
-        addressesList.add(address);
-        user.setAddresses(addressesList);
 
         Address savedAddress = addressRepository.save(address);
-        return modelMapper.map(savedAddress, AddressDTO.class);
+        return addressMapper.toDTO(savedAddress);
     }
 
     @Override
     public List<AddressDTO> getAddresses() {
         List<Address> addresses = addressRepository.findAll();
-        return addresses.stream()
-                .map(address -> modelMapper.map(address, AddressDTO.class))
-                .toList();
+        return addressMapper.toDTOList(addresses);
     }
 
     @Override
     public AddressDTO getAddressesById(Long addressId) {
         Address address = addressRepository.findById(addressId)
                 .orElseThrow(() -> new ResourceNotFoundException("Address", "addressId", addressId));
-        return modelMapper.map(address, AddressDTO.class);
+        return addressMapper.toDTO(address);
     }
 
     @Override
     public List<AddressDTO> getUserAddresses(User user) {
-        List<Address> addresses = user.getAddresses();
-        return addresses.stream()
-                .map(address -> modelMapper.map(address, AddressDTO.class))
-                .toList();
+        return addressMapper.toDTOList(user.getAddresses());
     }
 
     @Override
+    @Transactional
     public AddressDTO updateAddress(Long addressId, AddressDTO addressDTO) {
         Address addressFromDatabase = addressRepository.findById(addressId)
                 .orElseThrow(() -> new ResourceNotFoundException("Address", "addressId", addressId));
 
-        addressFromDatabase.setCity(addressDTO.getCity());
-        addressFromDatabase.setWard(addressDTO.getWard());
-        addressFromDatabase.setStreetDetail(addressDTO.getStreetDetail());
-        addressFromDatabase.setBuildingName(addressDTO.getBuildingName());
-        addressFromDatabase.setPincode(addressDTO.getPincode());
+        addressMapper.updateEntityFromDTO(addressDTO, addressFromDatabase);
 
         Address updatedAddress = addressRepository.save(addressFromDatabase);
-
-        return modelMapper.map(updatedAddress, AddressDTO.class);
+        return addressMapper.toDTO(updatedAddress);
     }
 
     @Override
+    @Transactional
     public String deleteAddress(Long addressId) {
         Address addressFromDatabase = addressRepository.findById(addressId)
                 .orElseThrow(() -> new ResourceNotFoundException("Address", "addressId", addressId));
 
         addressRepository.delete(addressFromDatabase);
-
         return "Address deleted successfully with addressId: " + addressId;
     }
 
     @Override
+    @Transactional
     public String deleteAddressByUser(Long addressId, User user) {
-        Address addressFromDatabase = addressRepository.findById(addressId)
+        Address address = addressRepository.findById(addressId)
                 .orElseThrow(() -> new ResourceNotFoundException("Address", "addressId", addressId));
 
-        addressRepository.delete(addressFromDatabase);
+        if (!address.getUser().getUserId().equals(user.getUserId())) {
+            throw new APIException("Access Denied: You do not own this address!");
+        }
 
+        addressRepository.delete(address);
         return "Address deleted successfully with addressId: " + addressId;
     }
 }

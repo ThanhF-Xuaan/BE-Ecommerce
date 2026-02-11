@@ -5,6 +5,9 @@ import com.smartcommerce.ecommerce.payload.OrderRequestDTO;
 import com.smartcommerce.ecommerce.service.OrderService;
 import com.smartcommerce.ecommerce.util.AuthUtil;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,14 +15,11 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Order", description = "Quản lý quy trình đặt hàng")
 @RestController
 @RequestMapping("/api")
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@RequiredArgsConstructor
 public class OrderController {
-    private final OrderService orderService;
-    private final AuthUtil authUtil;
-
-    public OrderController(OrderService orderService, AuthUtil authUtil) {
-        this.orderService = orderService;
-        this.authUtil = authUtil;
-    }
+    OrderService orderService;
+    AuthUtil authUtil;
 
     @PostMapping("/order/users/payments/{paymentMethod}")
     public ResponseEntity<OrderDTO> orderProducts(@PathVariable String paymentMethod,

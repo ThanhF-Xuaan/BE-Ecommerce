@@ -2,28 +2,29 @@ package com.smartcommerce.ecommerce.payload;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class ProductDTO {
-    private Long productId;
+    Long productId;
 
     @NotBlank(message = "{product.name.notblank}")
     @Size(min = 3, message = "{product.name.size}")
-    private String productName;
+    String productName;
 
-    private String image;
+    String image;
 
     @NotBlank(message = "{product.description.notblank}")
     @Size(min = 6, message = "{product.description.size}")
-    private String description;
+    String description;
 
-    private Integer quantity;
-    private Double price;
-    private Double discount;
-    private Double specialPrice;
+    Integer quantity;
+    Double price;
+    Double discount;
+    Double specialPrice;
 }

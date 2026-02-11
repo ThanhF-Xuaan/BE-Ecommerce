@@ -1,11 +1,14 @@
 package com.smartcommerce.ecommerce.payload;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class APIResponse {
-    public String message;
-    private boolean status;
+    String message;
+    boolean status;
 }

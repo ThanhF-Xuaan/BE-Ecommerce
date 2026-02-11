@@ -1,10 +1,8 @@
 package com.smartcommerce.ecommerce.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.util.*;
@@ -14,6 +12,8 @@ import java.util.*;
 @AllArgsConstructor
 @Getter
 @Setter
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "users",
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = "username"),
@@ -24,36 +24,36 @@ public class User {
     @GeneratedValue
     @UuidGenerator(style = UuidGenerator.Style.TIME)
     @Column(name = "user_id", updatable = false, nullable = false)
-    private UUID userId;
+    UUID userId;
 
     @Column(name = "username")
-    private String userName;
+    String userName;
 
     @Column(name = "email")
-    private String email;
+    String email;
 
     @Column(name = "password")
-    private String password;
+    String password;
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE},
             fetch = FetchType.EAGER)
     @JoinTable(name = "user_role",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<Role> roles = new HashSet<>();
+    Set<Role> roles = new HashSet<>();
 
     @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
-    private List<Address> addresses = new ArrayList<>();
+    List<Address> addresses = new ArrayList<>();
 
     @ToString.Exclude
     @OneToOne(mappedBy = "user", cascade = { CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
-    private Cart cart;
+    Cart cart;
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "user",
+    @OneToMany(mappedBy = "seller",
             cascade = {CascadeType.PERSIST, CascadeType.MERGE},
             orphanRemoval = true)
-    private Set<Product> products;
+    Set<Product> products;
 
     public User(String userName, String email, String password) {
         this.userName = userName;

@@ -1,17 +1,18 @@
 package com.smartcommerce.ecommerce.payload;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class CartItemDTO {
-    private Long cartItemId;
-    private CartDTO cart;
-    private ProductDTO productDTO;
-    private Integer quantity;
-    private Double discount;
-    private Double productPrice;
+    Long cartItemId;
+    CartDTO cart;
+    ProductDTO productDTO;
+    Integer quantity;
+    Double discount;
+    Double productPrice;
 }

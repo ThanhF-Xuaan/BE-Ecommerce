@@ -1,17 +1,22 @@
 package com.smartcommerce.ecommerce.payload;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.experimental.FieldDefaults;
 
 import java.util.List;
 
 @Data
 @AllArgsConstructor
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class ProductResponse {
-    private List<ProductDTO> content;
-    private Integer pageNumber;
-    private Integer pageSize;
-    private Long totalElements;
-    private Integer totalPages;
-    private boolean lastPage;
+    List<ProductDTO> content;
+    Integer pageNumber;
+    Integer pageSize;
+    Long totalElements;
+    Integer totalPages;
+    boolean lastPage;
 }

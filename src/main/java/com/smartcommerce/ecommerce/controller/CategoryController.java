@@ -4,21 +4,20 @@ import com.smartcommerce.ecommerce.config.AppConstants;
 import com.smartcommerce.ecommerce.payload.CategoryDTO;
 import com.smartcommerce.ecommerce.payload.CategoryResponse;
 import com.smartcommerce.ecommerce.service.CategoryService;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "Category", description = "Quản lý danh mục sản phẩm (Điện tử, Thời trang, v.v.)")
 @RestController
 @RequestMapping("/api")
-public class CategoryController {
-    private final CategoryService categoryService;
-
-    public CategoryController(CategoryService categoryService) {
-        this.categoryService = categoryService;
-    }
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@RequiredArgsConstructor
+public class CategoryController implements CategoryApi{
+    CategoryService categoryService;
 
     @GetMapping("/public/categories")
     public ResponseEntity<CategoryResponse> getAllCategories(
@@ -27,11 +26,10 @@ public class CategoryController {
             @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_CATEGORIES_BY) String sortBy,
             @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIR) String sortOrder
     ) {
-        CategoryResponse categoryResponse = categoryService.getAllCategories(pageNumber, pageSize, sortBy, sortOrder);
-        return new ResponseEntity<>(categoryResponse, HttpStatus.OK);
+        return new ResponseEntity<>(categoryService.getAllCategories(pageNumber, pageSize, sortBy, sortOrder), HttpStatus.OK);
     }
 
-    @PostMapping("/public/categories")
+    @PostMapping("/admin/categories")
     public ResponseEntity<CategoryDTO> createCategory(@Valid @RequestBody CategoryDTO categoryDTO) {
         CategoryDTO savedCategoryDTO = categoryService.createCategory(categoryDTO);
         return new ResponseEntity<>(savedCategoryDTO, HttpStatus.CREATED);

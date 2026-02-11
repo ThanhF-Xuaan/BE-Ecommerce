@@ -1,31 +1,31 @@
 package com.smartcommerce.ecommerce.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Entity
-@Table(name = "order_items")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@Table(name = "order_items")
 public class OrderItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long orderItemId;
+    Long orderItemId;
 
     @ManyToOne
     @JoinColumn(name = "product_id")
-    private Product product;
+    Product product;
 
     @ManyToOne
     @JoinColumn(name = "order_id")
-    private Order order;
+    Order order;
 
-    private Integer quantity;
-    private Double discount;
-    private Double orderedProductPrice;
+    Integer quantity;
+    Double discount;
+    Double orderedProductPrice;
 }

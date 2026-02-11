@@ -2,12 +2,17 @@ package com.smartcommerce.ecommerce.security.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class LoginRequest {
     @NotBlank
-    private String username;
+    String username;
 
     @NotBlank
-    private String password;
+    String password;
 }

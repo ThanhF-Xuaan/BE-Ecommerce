@@ -1,17 +1,18 @@
 package com.smartcommerce.ecommerce.payload;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class OrderRequestDTO {
-    private Long addressId;
-    private String paymentMethod;
-    private String pgName;
-    private String pgPaymentId;
-    private String pgStatus;
-    private String pgResponseMessage;
+    Long addressId;
+    String paymentMethod;
+    String pgName;
+    String pgPaymentId;
+    String pgStatus;
+    String pgResponseMessage;
 }

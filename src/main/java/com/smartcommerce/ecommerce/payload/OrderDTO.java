@@ -1,25 +1,27 @@
 package com.smartcommerce.ecommerce.payload;
 
 import jakarta.validation.constraints.Email;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class OrderDTO {
-    private Long orderId;
+    UUID orderId;
 
     @Email
-    private String email;
-    private List<OrderItemDTO> orderItems;
-    private LocalDate orderDate;
-    private PaymentDTO payment;
-    private Double totalAmount;
-    private String orderStatus;
-    private Long addressId;
+    String email;
+    List<OrderItemDTO> orderItems;
+    LocalDate orderDate;
+    PaymentDTO payment;
+    Double totalAmount;
+    String orderStatus;
+    Long addressId;
 }
