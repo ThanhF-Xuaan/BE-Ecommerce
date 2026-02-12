@@ -31,3 +31,17 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Cấu hình nhạy cảm (Quan trọng nhất) ###
+src/main/resources/application.properties
+.env
+*.log
+
+### Hệ điều hành ###
+.DS_Store
+Thumbs.db
+
+### Tệp tạm thời ###
+*.swp
+*.bak
+*.tmp
