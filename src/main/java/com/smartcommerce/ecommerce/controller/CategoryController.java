@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -30,18 +31,21 @@ public class CategoryController implements CategoryApi{
     }
 
     @PostMapping("/admin/categories")
+    @PreAuthorize("hasAuthority('CREATE_CATEGORY')")
     public ResponseEntity<CategoryDTO> createCategory(@Valid @RequestBody CategoryDTO categoryDTO) {
         CategoryDTO savedCategoryDTO = categoryService.createCategory(categoryDTO);
         return new ResponseEntity<>(savedCategoryDTO, HttpStatus.CREATED);
     }
 
     @DeleteMapping("/admin/categories/{categoryId}")
+    @PreAuthorize("hasAuthority('DELETE_CATEGORY')")
     public ResponseEntity<CategoryDTO> deleteCategory(@PathVariable Long categoryId) {
         CategoryDTO deletedCategory = categoryService.deleteCategory(categoryId);
         return new ResponseEntity<>(deletedCategory, HttpStatus.OK);
     }
 
     @PutMapping("/admin/categories/{categoryId}")
+    @PreAuthorize("hasAuthority('UPDATE_CATEGORY')")
     public ResponseEntity<CategoryDTO> updateCategory(@PathVariable Long categoryId,
                                                  @Valid @RequestBody CategoryDTO categoryDTO) {
         CategoryDTO savedCategoryDTO = categoryService.updateCategory(categoryId, categoryDTO);

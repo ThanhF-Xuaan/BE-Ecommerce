@@ -35,7 +35,7 @@ public class User {
     @Column(name = "password")
     String password;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+    @ManyToMany(cascade = CascadeType.MERGE,
             fetch = FetchType.EAGER)
     @JoinTable(name = "user_role",
             joinColumns = @JoinColumn(name = "user_id"),

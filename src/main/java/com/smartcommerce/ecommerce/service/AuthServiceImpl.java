@@ -26,7 +26,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Service
@@ -45,79 +44,47 @@ public class AuthServiceImpl implements AuthService {
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-        List<String> roles = userDetails.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .toList();
-
-        return new UserInfoResponse(userDetails.getId().toString(),
-                userDetails.getUsername(),
-                roles);
+        return new UserInfoResponse(userDetails.getId().toString(), userDetails.getUsername(),
+                userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList());
     }
 
     @Override
-    public ResponseCookie generateJwtCookie(UserInfoResponse userPrincipal) {
-        // Cần sửa lại JwtUtils để nhận username hoặc UserInfoResponse thay vì UserDetailsImpl nếu muốn decoupling hoàn toàn
-        // Tuy nhiên, để tận dụng code cũ, ta có thể build lại UserDetails giả hoặc sửa JwtUtils.
-        // Cách nhanh nhất hiện tại: Sửa JwtUtils.generateJwtCookie nhận vào username (String) thay vì object.
-        return jwtUtils.generateJwtCookie(userPrincipal.getUsername());
-    }
-
-    @Override
-    @Transactional
-    public MessageResponse registerUser(SignupRequest signUpRequest) {
-        if (userRepository.existsByUserName(signUpRequest.getUsername())) {
-            throw new APIException("Error: Username is already taken!");
-        }
-
-        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-            throw new APIException("Error: Email is already in use!");
-        }
-
-        // Create new user's account
-        User user = new User(signUpRequest.getUsername(),
-                signUpRequest.getEmail(),
-                encoder.encode(signUpRequest.getPassword()));
-
-        Set<String> strRoles = signUpRequest.getRole();
-        Set<Role> roles = new HashSet<>();
-
-        if (strRoles == null) {
-            Role userRole = roleRepository.findByRoleName(AppRole.ROLE_USER)
-                    .orElseThrow(() -> new APIException("Error: Role is not found."));
-            roles.add(userRole);
-        } else {
-            strRoles.forEach(role -> {
-                switch (role) {
-                    case "admin" -> {
-                        Role adminRole = roleRepository.findByRoleName(AppRole.ROLE_ADMIN)
-                                .orElseThrow(() -> new APIException("Error: Role is not found."));
-                        roles.add(adminRole);
-                    }
-                    case "seller" -> {
-                        Role modRole = roleRepository.findByRoleName(AppRole.ROLE_SELLER)
-                                .orElseThrow(() -> new APIException("Error: Role is not found."));
-                        roles.add(modRole);
-                    }
-                    default -> {
-                        Role userRole = roleRepository.findByRoleName(AppRole.ROLE_USER)
-                                .orElseThrow(() -> new APIException("Error: Role is not found."));
-                        roles.add(userRole);
-                    }
-                }
-            });
-        }
-
-        user.setRoles(roles);
-        userRepository.save(user);
-
-        return new MessageResponse("User registered successfully!");
+    public ResponseCookie generateJwtCookie(UserInfoResponse userInfo) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext()
+                .getAuthentication().getPrincipal();
+        String jwt = jwtUtils.generateTokenFromUserDetails(userDetails);
+        return jwtUtils.createCookie(jwt);
     }
 
     @Override
     public ResponseCookie signoutUser() {
-        return jwtUtils.getCleanJwtCookie();
+        return jwtUtils.deleteCookie();
+    }
+
+    @Override
+    @Transactional
+    public MessageResponse registerUser(SignupRequest req) {
+        if (userRepository.existsByUserName(req.getUsername())) throw new RuntimeException("Username taken");
+        if (userRepository.existsByEmail(req.getEmail())) {
+            throw new APIException("Error: Email is already in use!");
+        }
+
+        User user = new User(req.getUsername(), req.getEmail(), encoder.encode(req.getPassword()));
+        Set<Role> roles = new HashSet<>();
+
+        req.getRole().forEach(r -> {
+            AppRole appRole = switch (r.toLowerCase()) {
+                case "admin" -> AppRole.ROLE_ADMIN;
+                case "seller" -> AppRole.ROLE_SELLER;
+                default -> AppRole.ROLE_USER;
+            };
+            roles.add(roleRepository.findByRoleName(appRole).orElseThrow()); //
+        });
+
+        user.setRoles(roles);
+        userRepository.save(user);
+        return new MessageResponse("User registered successfully!");
     }
 }

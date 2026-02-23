@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,11 +31,13 @@ public class AddressController implements AddressApi{
     }
 
     @GetMapping("/addresses")
+    @PreAuthorize("hasAuthority('MANAGE_ADDRESS')")
     public ResponseEntity<List<AddressDTO>> getAddresses(){
         return new ResponseEntity<>(addressService.getAddresses(), HttpStatus.OK);
     }
 
     @GetMapping("/addresses/{addressId}")
+    @PreAuthorize("hasAuthority('MANAGE_ADDRESS') or returnObject.body.username == authentication.name")
     public ResponseEntity<AddressDTO> getAddressById(@PathVariable Long addressId){
         return new ResponseEntity<>(addressService.getAddressesById(addressId), HttpStatus.OK);
     }
@@ -46,17 +49,20 @@ public class AddressController implements AddressApi{
     }
 
     @PutMapping("/addresses/{addressId}")
+    @PreAuthorize("returnObject.body.username == authentication.name")
     public ResponseEntity<AddressDTO> updateAddress(@PathVariable Long addressId,
                                                     @Valid @RequestBody AddressDTO addressDTO){
         return new ResponseEntity<>(addressService.updateAddress(addressId, addressDTO), HttpStatus.OK);
     }
 
     @DeleteMapping("/addresses/{addressId}")
+    @PreAuthorize("hasAuthority('MANAGE_ADDRESS')")
     public ResponseEntity<String> deleteAddressByAdmin(@PathVariable Long addressId){
         return new ResponseEntity<>(addressService.deleteAddress(addressId), HttpStatus.OK);
     }
 
     @DeleteMapping("/users/addresses/{addressId}")
+    @PreAuthorize("returnObject.body.username == authentication.name")
     public ResponseEntity<String> deleteAddressOfCurrentUser(@PathVariable Long addressId){
         User user = authUtil.loggedInUser();
         return new ResponseEntity<>(addressService.deleteAddressByUser(addressId, user), HttpStatus.OK);

@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,6 +26,7 @@ public class ProductController {
     ProductService productService;
 
     @PostMapping("/admin/categories/{categoryId}/product")
+    @PreAuthorize("hasAuthority('CREATE_PRODUCT')")
     public ResponseEntity<ProductDTO> createProduct(@PathVariable Long categoryId,
                                                     @Valid @RequestBody ProductDTO productDTO) {
         return new ResponseEntity<>(productService.createProduct(categoryId, productDTO),
@@ -69,17 +71,20 @@ public class ProductController {
     }
 
     @PutMapping("/admin/products/{productId}")
+    @PreAuthorize("hasAuthority('UPDATE_PRODUCT')")
     public ResponseEntity<ProductDTO> updateProduct(@PathVariable Long productId,
                                                     @Valid @RequestBody ProductDTO productDTO) {
         return new ResponseEntity<>(productService.updateProduct(productId, productDTO), HttpStatus.OK);
     }
 
     @DeleteMapping("admin/products/{productId}")
+    @PreAuthorize("hasAuthority('DELETE_PRODUCT')")
     public ResponseEntity<ProductDTO> deleteProduct(@PathVariable Long productId) {
         return new ResponseEntity<>(productService.deleteProduct(productId), HttpStatus.OK);
     }
 
     @PutMapping("/products/{productId}/image")
+    @PreAuthorize("hasAuthority('UPLOAD_IMAGE')")
     public ResponseEntity<ProductDTO> updateProductImage(@PathVariable Long productId,
                                                          @RequestParam("image") MultipartFile image) throws IOException {
         return new ResponseEntity<>(productService.updateProductImage(productId, image), HttpStatus.OK);

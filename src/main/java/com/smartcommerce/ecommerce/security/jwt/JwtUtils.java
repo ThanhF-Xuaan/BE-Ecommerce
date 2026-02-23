@@ -1,9 +1,7 @@
 package com.smartcommerce.ecommerce.security.jwt;
 
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.UnsupportedJwtException;
+import com.smartcommerce.ecommerce.security.services.UserDetailsImpl;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
@@ -13,11 +11,13 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.WebUtils;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.List;
 
 @Component
 @Slf4j
@@ -32,53 +32,58 @@ public class JwtUtils {
     @Value("${spring.ecom.app.jwtCookieName}")
     String jwtCookieName;
 
-    public String getJwtFromCookies(HttpServletRequest request) {
-        Cookie cookie = WebUtils.getCookie(request, jwtCookieName);
-        return (cookie != null) ? cookie.getValue() : null;
-    }
-
-    public String getJwtFromHeader(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
-        }
-        return null;
-    }
-
-    public ResponseCookie generateJwtCookie(String username) {
-        String jwt = generateTokenFromUsername(username);
-        return ResponseCookie.from(jwtCookieName, jwt)
-                .path("/api")
-                .maxAge(24 * 60 * 60)
-                .httpOnly(true)
-                .secure(false)
-                .sameSite("Lax")      // Tăng tính bảo mật cho trình duyệt hiện đại
-                .build();
-    }
-
-    public ResponseCookie getCleanJwtCookie() {
-        return ResponseCookie.from(jwtCookieName, "")
-                .path("/api")
-                .maxAge(0) // Hết hạn ngay lập tức
-                .build();
-    }
-
-    public String generateTokenFromUsername(String username) {
-        return Jwts.builder()
-                .subject(username)
-                .issuedAt(new Date())
-                .expiration(new Date((new Date()).getTime() + jwtExpirationMs))
-                .signWith(getSigningKey())
-                .compact();
-    }
-
-    public String getUserNameFromJwtToken(String token) {
+    private Claims getClaims(String token) {
         return Jwts.parser()
                 .verifyWith(getSigningKey())
                 .build()
                 .parseSignedClaims(token)
-                .getPayload()
-                .getSubject();
+                .getPayload();
+    }
+
+    public String getJwtFromHeaderOrCookie(HttpServletRequest request) {
+        Cookie cookie = WebUtils.getCookie(request, jwtCookieName); //
+        if (cookie != null) return cookie.getValue();
+
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) return bearerToken.substring(7);
+        return null;
+    }
+
+    public String generateTokenFromUserDetails(UserDetailsImpl userPrincipal) {
+        List<String> authorities = userPrincipal.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
+
+        return Jwts.builder()
+                .subject(userPrincipal.getUsername())
+                .claim("scopes", authorities) // Gộp tất cả vào đây
+                .issuer("THANHF_XUAAN")
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
+                .signWith(getSigningKey(), Jwts.SIG.HS512)
+                .compact();
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<String> getScopesFromJwtToken(String token) {
+        return (List<String>) getClaims(token).get("scopes");
+    }
+
+
+
+    public ResponseCookie createCookie(String jwt) {
+        return ResponseCookie.from(jwtCookieName, jwt)
+                .path("/api").maxAge(24 * 60 * 60)
+                .httpOnly(true).secure(false).sameSite("Lax").build();
+    }
+
+    public ResponseCookie deleteCookie() {
+        return ResponseCookie.from(jwtCookieName, "").path("/api").maxAge(0).build();
+    }
+
+    public String getUserNameFromJwtToken(String token) {
+        return Jwts.parser().verifyWith(getSigningKey()).build()
+                .parseSignedClaims(token).getPayload().getSubject();
     }
 
     private SecretKey getSigningKey() {
@@ -89,14 +94,8 @@ public class JwtUtils {
         try {
             Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(authToken);
             return true;
-        } catch (MalformedJwtException e) {
-            log.error("Invalid JWT token: {}", e.getMessage());
-        } catch (ExpiredJwtException e) {
-            log.error("JWT token is expired: {}", e.getMessage());
-        } catch (UnsupportedJwtException e) {
-            log.error("JWT token is unsupported: {}", e.getMessage());
-        } catch (IllegalArgumentException e) {
-            log.error("JWT claims string is empty: {}", e.getMessage());
+        } catch (JwtException e) {
+            log.error("JWT Validation failed: {}", e.getMessage(), e);
         }
         return false;
     }

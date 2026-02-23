@@ -9,8 +9,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
@@ -20,8 +22,22 @@ public interface UserMapper {
     UserDetailsImpl toUserDetails(User user);
 
     default Collection<? extends GrantedAuthority> mapRolesToAuthorities(Set<Role> roles) {
-        return roles.stream()
-                .map(role -> new SimpleGrantedAuthority(role.getRoleName().name()))
+        // 1. Lấy danh sách Roles (đã có tiền tố ROLE_)
+        List<String> roleList = roles.stream()
+                .map(role -> role.getRoleName().name())
+                .sorted()
+                .toList();
+
+        // 2. Lấy danh sách Permissions (SCREAMING_SNAKE_CASE)
+        List<String> permissionList = roles.stream()
+                .flatMap(role -> role.getPermissions().stream())
+                .map(p -> p.getPermissionName().toUpperCase())
+                .distinct()
+                .sorted()
+                .toList();
+
+        return Stream.concat(roleList.stream(), permissionList.stream())
+                .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
     }
 }

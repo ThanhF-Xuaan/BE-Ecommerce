@@ -13,7 +13,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -24,15 +23,12 @@ import java.util.*;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthController {
-    AuthService authService;
+    private final AuthService authService;
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
         UserInfoResponse userInfoResponse = authService.authenticateUser(loginRequest);
-
-        ResponseCookie jwtCookie = authService.generateJwtCookie(userInfoResponse);
-
-        userInfoResponse.setJwtToken(jwtCookie.getValue());
+        ResponseCookie jwtCookie = authService.generateJwtCookie(userInfoResponse); //
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
@@ -45,22 +41,17 @@ public class AuthController {
     }
 
     @GetMapping("/username")
-    public String currentUserName(Authentication authentication){
-        if (authentication != null)
-            return authentication.getName();
-        else
-            return "";
+    public String currentUserName(Authentication authentication) {
+        return (authentication != null) ? authentication.getName() : "";
     }
 
-
     @GetMapping("/user")
-    public ResponseEntity<?> getUserDetails(Authentication authentication){
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        return ResponseEntity.ok(userDetails);
+    public ResponseEntity<?> getUserDetails(Authentication authentication) {
+        return ResponseEntity.ok(authentication.getPrincipal());
     }
 
     @PostMapping("/signout")
-    public ResponseEntity<?> signoutUser(){
+    public ResponseEntity<?> signoutUser() {
         ResponseCookie cookie = authService.signoutUser();
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())

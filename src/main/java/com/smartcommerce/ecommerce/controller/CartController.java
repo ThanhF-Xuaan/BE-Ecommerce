@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,6 +28,7 @@ public class CartController {
 
 
     @PostMapping("/carts/products/{productId}/quantity/{quantity}")
+    @PreAuthorize("returnObject.body.username == authentication.name")
     public ResponseEntity<CartDTO> addProductToCart(@PathVariable Long productId,
                                                     @PathVariable Integer quantity){
         CartDTO cartDTO = cartService.addProductToCart(productId, quantity);
@@ -34,6 +36,7 @@ public class CartController {
     }
 
     @GetMapping("/carts")
+    @PreAuthorize("hasAuthority('READ_CART')")
     public ResponseEntity<List<CartDTO>> getCarts() {
         List<CartDTO> cartDTOs = cartService.getAllCarts();
         return new ResponseEntity<>(cartDTOs, HttpStatus.FOUND);
@@ -49,6 +52,7 @@ public class CartController {
     }
 
     @PutMapping("/cart/products/{productId}/quantity/{operation}")
+    @PreAuthorize("returnObject.body.username == authentication.name")
     public ResponseEntity<CartDTO> updateCartProduct(@PathVariable Long productId,
                                                      @PathVariable String operation) {
 
@@ -59,6 +63,7 @@ public class CartController {
     }
 
     @DeleteMapping("/carts/{cartId}/product/{productId}")
+    @PreAuthorize("returnObject.body.username == authentication.name")
     public ResponseEntity<String> deleteProductFromCart(@PathVariable Long cartId,
                                                         @PathVariable Long productId) {
         String status = cartService.deleteProductFromCart(cartId, productId);
